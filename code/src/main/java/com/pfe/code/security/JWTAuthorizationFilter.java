@@ -6,7 +6,6 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.jetbrains.annotations.NotNull;
@@ -24,40 +23,53 @@ import java.util.List;
 
 public class JWTAuthorizationFilter extends OncePerRequestFilter {
 
+    private final String jwtSecret;
+
+    public JWTAuthorizationFilter(String jwtSecret) {
+        this.jwtSecret = jwtSecret;
+    }
+
     @Override
-    protected void doFilterInternal(HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain) throws ServletException, IOException {
-        String jwt = request.getHeader("Authorization");
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain)
+            throws ServletException, IOException {
+        String jwt =request.getHeader("Authorization");
 
-        if (jwt == null || !jwt.startsWith("Bearer ")) {
-
-
-            System.out.println("token null");
-          //  filterChain.doFilter(request, response);
+        if (jwt==null || !jwt.startsWith(SecParams.prefix))
+        {
+            filterChain.doFilter(request, response);
             return;
         }
 
-        JWTVerifier verifier = JWT.require(Algorithm.HMAC256(SecParams.Secret)).build();
-        jwt = jwt.substring(SecParams.n);
-        System.out.println("Utilisateur connecté");
+        try{
+            JWTVerifier verifier =
+                    JWT.require(Algorithm.HMAC256(jwtSecret)).build();
 
-        DecodedJWT decodedJWT = verifier.verify(jwt);
-        String username = decodedJWT.getSubject();
-      String role = decodedJWT.getClaim("role").asString();
+            //enlever le préfixe Bearer du  jwt
+            jwt = jwt.substring(SecParams.prefix.length());
 
-        if (username != null && role !=null) {
-          GrantedAuthority authority = new SimpleGrantedAuthority(role);
-          Collection<GrantedAuthority>authorities = Collections.singletonList(authority);
+            DecodedJWT decodedJWT = verifier.verify(jwt);
+            String username = decodedJWT.getSubject();
+            String role = decodedJWT.getClaim("role").asString();
+            Collection<GrantedAuthority> authorities =
+                    Collections.singletonList(new SimpleGrantedAuthority(role));
 
 
-            UsernamePasswordAuthenticationToken user = new UsernamePasswordAuthenticationToken(username, null, authorities);
+            UsernamePasswordAuthenticationToken user =
+                    new
+                            UsernamePasswordAuthenticationToken(username, null, authorities);
+
             SecurityContextHolder.getContext().setAuthentication(user);
-            filterChain.doFilter(request, response);
         }
-        else{
-            System.out.println("acces refusé");
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+         catch (Exception e) {
+            // Token invalide/expiré/corrompu
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.getWriter().write("{\"error\":\"Token invalide ou expiré\"}");
+            return; // ⚠️ Important : ne pas continuer la chaîne
         }
 
-
+        filterChain.doFilter(request, response);
     }
 }

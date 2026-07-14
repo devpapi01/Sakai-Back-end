@@ -11,6 +11,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -22,33 +23,40 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
 
-
 public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
-    private AuthenticationManager authenticationManager;
 
-    public JWTAuthenticationFilter(AuthenticationManager authenticationManager) {
+    private final AuthenticationManager authenticationManager;
+    private final String jwtSecret;
+    private final long jwtExpirationMs;
 
-
-        super();
+    public JWTAuthenticationFilter(AuthenticationManager authenticationManager, String jwtSecret, long jwtExpirationMs) {
         this.authenticationManager = authenticationManager;
+        this.jwtSecret = jwtSecret;
+        this.jwtExpirationMs = jwtExpirationMs;
+        // ✅ CORRECTION : Définir l'AuthenticationManager pour le parent
+        super.setAuthenticationManager(authenticationManager);
+        // ✅ Optionnel : définir l'URL du endpoint de login
+        setFilterProcessesUrl("/login");
     }
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
             throws AuthenticationException {
-        Utilisateur utilisateur = new Utilisateur();
+        Utilisateur utilisateur;
         try {
             utilisateur = new ObjectMapper().readValue(request.getInputStream(), Utilisateur.class);
         } catch (JsonParseException e) {
-            e.printStackTrace();
-            System.out.println("json error");
+            throw new AuthenticationServiceException("Invalid login payload", e);
         } catch (JsonMappingException e) {
-            System.out.println("parsing error");
-            e.printStackTrace();
+            throw new AuthenticationServiceException("Invalid login payload", e);
         } catch (IOException e) {
-            System.out.println("exception");
-            e.printStackTrace();
+            throw new AuthenticationServiceException("Unable to read login payload", e);
         }
+
+        if (utilisateur.getEmail() == null || utilisateur.getPassword() == null) {
+            throw new AuthenticationServiceException("Email and password are required");
+        }
+
         return authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(utilisateur.getEmail(), utilisateur.getPassword()));
     }
@@ -56,19 +64,22 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     protected void successfulAuthentication(HttpServletRequest request,
                                             HttpServletResponse response, FilterChain chain,
-                                            Authentication authResult) throws IOException, ServletException
-    {
+                                            Authentication authResult) throws IOException, ServletException {
 
         org.springframework.security.core.userdetails.User springUser =
                 (org.springframework.security.core.userdetails.User) authResult.getPrincipal();
-   String role = springUser.getAuthorities().stream().findFirst().map(GrantedAuthority::getAuthority).orElse(null);
+        String role = springUser.getAuthorities().stream()
+                .findFirst()
+                .map(GrantedAuthority::getAuthority)
+                .orElse(null);
 
-        String jwt = JWT.create().
-                withSubject(springUser.getUsername()).
-                withClaim("role", role).
-                withExpiresAt(new Date(System.currentTimeMillis()+SecParams.EXP_TIME)).
-                sign(Algorithm.HMAC256(SecParams.Secret));
-        response.addHeader("Authorization", jwt);
+        String jwt = JWT.create()
+                .withSubject(springUser.getUsername())
+                .withClaim("role", role)
+                .withExpiresAt(new Date(System.currentTimeMillis() + jwtExpirationMs))
+                .sign(Algorithm.HMAC256(jwtSecret));
+
+        response.addHeader("Authorization", "Bearer " + jwt);
     }
 
     @Override
@@ -87,10 +98,21 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             PrintWriter writer = response.getWriter();
             writer.println(json);
             writer.flush();
+        } else if (failed instanceof AuthenticationServiceException) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setContentType("application/json");
+            Map<String, Object> data = new HashMap<>();
+            data.put("errorCause", "invalid_request");
+            data.put("message", failed.getMessage());
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            String json = objectMapper.writeValueAsString(data);
+            PrintWriter writer = response.getWriter();
+            writer.println(json);
+            writer.flush();
 
         } else {
             super.unsuccessfulAuthentication(request, response, failed);
         }
     }
-
 }

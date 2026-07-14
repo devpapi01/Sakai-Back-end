@@ -1,126 +1,163 @@
 package com.pfe.code.security;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.config.annotation.authentication.configuration.EnableGlobalAuthentication;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
+
+    private final MyUserDetailsService userDetailsService;
+    private final PasswordEncoder passwordEncoder;
+
+    @Value("${jwt.secret}")
+    private String jwtSecret;
+
+    @Value("${jwt.expiration-ms}")
+    private long jwtExpirationMs;
+
+    public SecurityConfig(MyUserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+        this.userDetailsService = userDetailsService;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     private static final String[] AUTH_WHITELIST = {
             "/",
-            "/api/v1/auth/**",
-            "/api-docs",
+            "/error",
+            "/baba/login",
+            "/register",
+            "/marchands/register",
+            "/marchands/verifyEmail/**",
+            "/categories/**",
+            "/fournisseurs/**",
+            "/souscategories/**",
             "/api-docs/**",
-            "/swagger-ui.html",
+            "/v3/api-docs/**",
             "/swagger-ui/**",
-            "/swagger-ui/index.html#/**",
-            "/v3/api-docs/swagger-config/**",
-            "/v3/api-docs",
-            "/configuration/ui",
-            "/swagger-resources/**",
-            "/configuration/security",
-            "/swagger-ui.html",
-            "/webjars/**"
+            "/swagger-ui.html"
     };
-    private static final String[] AdminList={"/all","/deleteUser","/nomcont","/supprimer/**","/addSl","addFournisseur","/marchands"};
-    private static final String [] Service={"/getSl",
-            "/deleteSL",
-            "/updateSl",
-            "/getbyid",
-            "/getforsl",
-            "/addlivreur",
-            "/updateL"};
-    private static final String [] commun={"/changepassword",
-            "/updateinfosuser",
-            "/email",
-            "/categories",
-            "/etats",
-            "/images",
-            "/souscategories",
-            "/users"};
-    private static final String [] Livreur={"/updateL",
-            "/deletelivreur",
-            "/getforsl"};
-    private static final String [] Fournisseur={"/addprod",
-            "/update",
-            "/supprimer",
-};
 
+    private static final String[] ADMIN = {
+            "/users/all",
+            "/users/deleteUser/**",
+            "/users/nomcont/**",
+            "/marchands/all",
+            "/marchands/getnc/**",
+            "/marchands/nomASC",
+            "/marchands/nomDESc",
+            "/marchands/preASC",
+            "/marchands/preDESC",
+            "/marchands/find/**"
+    };
 
+    private static final String[] SERVICE = {
+            "/serviceslivraison/getSl/**",
+            "/serviceslivraison/deleteSL/**",
+            "/serviceslivraison/updateSl",
+            "/livreurs/addlivreur/**"
+    };
 
-    @Autowired
-    AuthenticationManager authMgr;
+    private static final String[] COMMUN = {
+            "/users/changepassword/**",
+            "/users/updateinfosuser",
+            "/users/email/**"
+    };
+
+    private static final String[] LIVREUR = {
+            "/livreurs/deletelivreur/**"
+    };
+
+    private static final String[] FOURNISSEUR = {
+            "/produits/addprod",
+            "/produits/update",
+            "/produits/supprimer/**"
+    };
+
+    private static final String[] ACHETEUR = {
+            "/marchands/updateinfos",
+            "/marchands/delete/**"
+    };
+
+    private static final String[] SERVICE_OR_LIVREUR = {
+            "/livreurs/updateL",
+            "/livreurs/getforsl/**"
+    };
 
     @Bean
-    public SecurityFilterChain filterChain (HttpSecurity http) throws Exception
-    {
-        http.sessionManagement( session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        AuthenticationManagerBuilder authBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
+        authBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
+        AuthenticationManager authenticationManager = authBuilder.build();
 
-                .csrf(AbstractHttpConfigurer::disable)
-                .cors(cors -> cors.configurationSource(request -> {
-                    CorsConfiguration cors1 = new CorsConfiguration();
-
-                    cors1.setAllowedOrigins(Collections.singletonList("http://localhost:4200"));
-                    cors1.setAllowedMethods(Collections.singletonList("*"));
-                    cors1.setAllowCredentials(true);
-                    cors1.setAllowedHeaders(Collections.singletonList("*"));
-                    cors1.setExposedHeaders(Collections.singletonList("Authorization"));
-                    cors1.setMaxAge(3600L);
-                    return cors1;
-                }))
-                .authorizeHttpRequests( authorize -> authorize
-                        .requestMatchers(AUTH_WHITELIST).permitAll()
-
-                        .requestMatchers(
-                                "baba/login",
-                                "baba/marchands/register",
-                                "baba/marchands/verifyEmail/**",
-                                "/swagger-ui/**" ,
-                                "/produits/**",
-                                "/etats/**",
-                                "/images/**",
-                                "/souscategories/**",
-                                "/categories/**",
-                                "/commandes/newcommande/**"
-                                ).permitAll()
-
-
-                        .requestMatchers(commun).permitAll()
-                        .requestMatchers(AdminList).hasAuthority("ADMIN")
-                        .requestMatchers(Service).hasAuthority("SERVICE_LIVRAISON")
-                        .requestMatchers(Livreur).hasAuthority("LIVREUR")
-                        .requestMatchers(Fournisseur).hasAuthority("FOURNISSEUR")
-                        .anyRequest().authenticated()
-
-
-
+        http
+                .authenticationManager(authenticationManager)
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-
-
-                .addFilterBefore(new JWTAuthenticationFilter(authMgr),UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(new JWTAuthorizationFilter(),UsernamePasswordAuthenticationFilter.class)
-
-
-                ;
+                .csrf(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((req, res, e) -> {
+                            res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            res.setContentType("application/json");
+                            res.getWriter().write("{\"error\":\"Unauthorized - Token manquant ou invalide\"}");
+                        })
+                        .accessDeniedHandler((req, res, e) -> {
+                            res.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                            res.setContentType("application/json");
+                            res.getWriter().write("{\"error\":\"Forbidden - Vous n'avez pas les permissions\"}");
+                        })
+                )
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(AUTH_WHITELIST).permitAll()
+                        .requestMatchers(COMMUN).authenticated()
+                        .requestMatchers(ADMIN).hasAuthority("ADMIN")
+                        .requestMatchers(SERVICE).hasAuthority("SERVICE_LIVRAISON")
+                        .requestMatchers(SERVICE_OR_LIVREUR).hasAnyAuthority("SERVICE_LIVRAISON", "LIVREUR")
+                        .requestMatchers(LIVREUR).hasAuthority("LIVREUR")
+                        .requestMatchers(FOURNISSEUR).hasAuthority("FOURNISSEUR")
+                        .requestMatchers(ACHETEUR).hasAuthority("ACHETEUR")
+                        .anyRequest().authenticated()
+                )
+                .addFilterBefore(
+                        new JWTAuthorizationFilter(jwtSecret),
+                        UsernamePasswordAuthenticationFilter.class
+                )
+                .addFilter(new JWTAuthenticationFilter(authenticationManager, jwtSecret, jwtExpirationMs));
 
         return http.build();
     }
 
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(Collections.singletonList("http://localhost:4200"));
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(Collections.singletonList("*"));
+        config.setExposedHeaders(Collections.singletonList("Authorization"));
+        config.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
+    }
 }
