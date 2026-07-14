@@ -2,9 +2,11 @@ package com.pfe.code.controllers;
 
 import com.pfe.code.entities.Fournisseur;
 import com.pfe.code.entities.Produit;
+import com.pfe.code.security.SecurityUtils;
 import com.pfe.code.services.FournisseurService;
 import com.pfe.code.services.ProduitService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +21,13 @@ public class FournisseurRESTController {
 
     @Autowired
    ProduitService produitService;
+
+    private void checkIsSelf(Long targetId) {
+        Fournisseur current = fournisseurService.findByEmail(SecurityUtils.currentEmail()).orElse(null);
+        if (current == null || !current.getId().equals(targetId)) {
+            throw new AccessDeniedException("Vous ne pouvez agir que sur votre propre compte");
+        }
+    }
 
     @GetMapping("/all")
     public List<Fournisseur>getAll(){
@@ -65,26 +74,25 @@ public class FournisseurRESTController {
         return fournisseurService.getByPreDesc();
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/addFournisseur")
     public Fournisseur addFournisseur(@RequestBody Fournisseur fournisseur){
         return fournisseurService.saveFournisseur(fournisseur);
     }
-    @PreAuthorize("hasAnyAuthority('ADMIN','FOURNISSEUR','SERVICE_LIVRAISON')")
     @DeleteMapping("/supprimerFournisseur/{id}")
     public void deleteById(@PathVariable("id") Long id){
+      checkIsSelf(id);
       fournisseurService.deleteFournisseurById(id);
   }
 
-    @PreAuthorize("hasAuthority('FOURNISSEUR')")
 
   @PutMapping("/fouraddprod/{id}")
     public Fournisseur updateF(@PathVariable("id") Long id,@RequestBody Produit produit){
+        checkIsSelf(id);
         return fournisseurService.updateFourbyid(id,produit);
   }
-    @PreAuthorize("hasAuthority('FOURNISSEUR')")
 @PutMapping("/updateinfos")
     public Fournisseur updateinfos(@RequestBody Fournisseur fournisseuru){
+     checkIsSelf(fournisseuru.getId());
      return fournisseurService.updateinfoFour(fournisseuru);
 }
 
