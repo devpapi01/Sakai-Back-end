@@ -23,7 +23,7 @@ public class LigneCommande {
     @ManyToOne
     @JoinColumn(name = "produit_id")
     private Produit produit;
-    private Long quantité;
+    private Long quantite;
     private Long prixligne;
     private String adrfour;
 }

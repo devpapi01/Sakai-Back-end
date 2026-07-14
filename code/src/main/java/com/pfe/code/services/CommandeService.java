@@ -2,6 +2,7 @@ package com.pfe.code.services;
 
 import com.pfe.code.entities.Commande;
 import com.pfe.code.entities.Etat;
+import com.pfe.code.entities.PaymentStatus;
 
 import java.util.List;
 //principe SRP
@@ -17,5 +18,13 @@ public interface CommandeService {
     Commande updateEtat(Long idCom,String etat);
 
     void deleteCommandeById(Long id);
+
+    Commande getOrCreatePanier(Long marchandId);
+    Commande getPanier(Long marchandId);
+    Commande ajouterAuPanier(Long marchandId, Long produitId, Long quantite);
+    Commande modifierLignePanier(Long marchandId, Long ligneId, Long quantite);
+    Commande supprimerLignePanier(Long marchandId, Long ligneId);
+    List<Commande> validerPanier(Long marchandId, String adresseLivraison, String emailRec, String numRec);
+    Commande marquerPaiement(Long idCom, PaymentStatus status);
 
 }
