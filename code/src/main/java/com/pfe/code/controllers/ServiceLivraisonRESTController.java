@@ -2,6 +2,7 @@ package com.pfe.code.controllers;
 
 import com.pfe.code.entities.ServiceLivraison;
 import com.pfe.code.services.ServiceLivraisonService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,7 +28,7 @@ public class ServiceLivraisonRESTController {
 
 
     @PostMapping("/addSl")
-    public ServiceLivraison createSl(@RequestBody ServiceLivraison serviceLivraison){
+    public ServiceLivraison createSl(@Valid @RequestBody ServiceLivraison serviceLivraison){
         return serviceLivraisonService.createSl(serviceLivraison);
     }
 

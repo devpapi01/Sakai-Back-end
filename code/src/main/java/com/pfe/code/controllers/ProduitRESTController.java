@@ -3,6 +3,7 @@ package com.pfe.code.controllers;
 import com.pfe.code.entities.Produit;
 import com.pfe.code.services.ProduitService;
 import com.pfe.code.services.request.ProduitFilterRequest;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,13 +25,13 @@ public class ProduitRESTController {
 
 
     @PostMapping("/addprod")
-    public Produit addProd(@RequestBody Produit produit){
+    public Produit addProd(@Valid @RequestBody Produit produit){
         return produitService.saveProduit(produit);
     }
 
 
     @PutMapping("/update")
-   public Produit update(@RequestBody Produit produit){
+   public Produit update(@Valid @RequestBody Produit produit){
         return produitService.updateProduit(produit);
     }
 

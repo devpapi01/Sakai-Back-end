@@ -6,6 +6,7 @@ import com.pfe.code.entities.Utilisateur;
 import com.pfe.code.security.SecurityUtils;
 import com.pfe.code.services.LivreurService;
 import com.pfe.code.services.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
@@ -56,7 +57,7 @@ public class LivreurRESTController {
     }
 
     @PostMapping("/addlivreur/{idSL}")
-    public Livreur add(@PathVariable("idSL")Long idSL, @RequestBody Livreur livreur){
+    public Livreur add(@PathVariable("idSL")Long idSL, @Valid @RequestBody Livreur livreur){
         return livreurService.createLivreur(idSL,livreur);
     }
 

@@ -5,6 +5,7 @@ import com.pfe.code.entities.Produit;
 import com.pfe.code.security.SecurityUtils;
 import com.pfe.code.services.FournisseurService;
 import com.pfe.code.services.ProduitService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
@@ -73,7 +74,7 @@ public class FournisseurRESTController {
     }
 
     @PostMapping("/addFournisseur")
-    public Fournisseur addFournisseur(@RequestBody Fournisseur fournisseur){
+    public Fournisseur addFournisseur(@Valid @RequestBody Fournisseur fournisseur){
         return fournisseurService.saveFournisseur(fournisseur);
     }
     @DeleteMapping("/supprimerFournisseur/{id}")

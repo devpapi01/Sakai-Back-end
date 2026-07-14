@@ -2,6 +2,7 @@ package com.pfe.code.controllers;
 
 import com.pfe.code.entities.SousCategorie;
 import com.pfe.code.services.SousCategorieService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,7 +40,7 @@ public class SousCategorieRESTController{
     }
 
     @PostMapping("/addsscat/{id}")
-    public SousCategorie addSsC(@PathVariable("id") Long id,@RequestBody SousCategorie sousCategorie){
+    public SousCategorie addSsC(@PathVariable("id") Long id,@Valid @RequestBody SousCategorie sousCategorie){
         return sousCategorieService.saveSousCategorie(id,sousCategorie);
     }
     @GetMapping("/getbyid/{id}")
@@ -48,7 +49,7 @@ public class SousCategorieRESTController{
     }
 
     @PutMapping("/updatecat")
-    public SousCategorie updatessc(@RequestBody SousCategorie sousCategorie){
+    public SousCategorie updatessc(@Valid @RequestBody SousCategorie sousCategorie){
         return sousCategorieService.updateSousCategorie(sousCategorie);
     }
 

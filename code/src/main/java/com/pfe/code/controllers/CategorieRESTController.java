@@ -2,6 +2,7 @@ package com.pfe.code.controllers;
 
 import com.pfe.code.entities.Categorie;
 import com.pfe.code.services.CategorieService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,12 +34,12 @@ public class CategorieRESTController {
         return categorieService.getByNomC(nom);
     }
     @PostMapping("/addcat")
-    public Categorie savecat(@RequestBody Categorie categorie){
+    public Categorie savecat(@Valid @RequestBody Categorie categorie){
         return categorieService.saveCategorie(categorie);
     }
 
     @PutMapping("/updatecat")
-   public Categorie updatecat(@RequestBody Categorie categorie){
+   public Categorie updatecat(@Valid @RequestBody Categorie categorie){
         return categorieService.updateCategorie(categorie);
     }
 

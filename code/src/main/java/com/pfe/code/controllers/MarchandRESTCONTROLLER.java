@@ -5,6 +5,7 @@ import com.pfe.code.security.SecurityUtils;
 import com.pfe.code.services.Exceptions.GlobalException;
 import com.pfe.code.services.MarchandService;
 import com.pfe.code.services.request.Register;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +27,7 @@ public class MarchandRESTCONTROLLER {
 
 
     @PostMapping("/register")
-    public Marchand addMarchand(@RequestBody Register register){
+    public Marchand addMarchand(@Valid @RequestBody Register register){
         return marchandService.createMarchand(register);
     }
 
