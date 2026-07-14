@@ -52,6 +52,9 @@ public class Commande {
     @Enumerated(EnumType.STRING)
     private Etat etat;
 
+    @Enumerated(EnumType.STRING)
+    private PaymentStatus paymentStatus = PaymentStatus.EN_ATTENTE;
+
 
 
 

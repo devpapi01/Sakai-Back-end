@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum Etat {
+    EN_PANIER("Panier"),
     EN_ATTENTE("En attente"),
     EN_COURS("En cours"),
     LIVREE("Livrée"),

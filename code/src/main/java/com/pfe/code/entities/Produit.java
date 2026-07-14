@@ -36,6 +36,9 @@ public class Produit {
     private Long quantite= 400L;
     private Date datecreation;
 
+    @Version
+    private Long version;
+
 
     @JsonIgnore
     @ManyToOne
