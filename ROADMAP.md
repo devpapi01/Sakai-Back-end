@@ -89,4 +89,25 @@ On avance phase par phase, un point à la fois, avec commit + push après chaque
   entièrement whitelisté au niveau `SecurityConfig` mais les écritures sont
   protégées par un contrôle de propriété au niveau contrôleur. À reprendre
   en Phase 1 si besoin de durcissement supplémentaire.
-  Prochaine étape : Phase 1 (fondations manquantes de la marketplace).
+- 2026-07-14 : ajout d'un gestionnaire d'exceptions global
+  (`GlobalExceptionHandler`, réponses JSON cohérentes pour toutes les erreurs)
+  et de contraintes Bean Validation (`@NotBlank`/`@Email`/`@Pattern`/`@Positive`...)
+  sur les entités et DTOs de création, câblées via `@Valid` sur les endpoints
+  de création (pas sur les mises à jour partielles de profil, pour ne pas les
+  casser — à revisiter avec des DTOs de update dédiés).
+- 2026-07-14 : Phase 1 (fondations manquantes) — panier, stock, paiement,
+  scission multi-fournisseurs — implémentée et poussée :
+  - `Etat.EN_PANIER` + `PaymentStatus` (simulateur, pas de PSP réel)
+  - `Produit.version` (`@Version`) pour le verrouillage optimiste du stock
+  - Service panier complet (ajout/modif/suppression de lignes, total recalculé)
+  - Validation du panier : vérifie le stock, le décrémente, scinde
+    automatiquement en une `Commande` par fournisseur (comme Amazon/Alibaba)
+  - Endpoints REST sous `/commandes/panier/**` et `/commandes/{id}/payer`,
+    réservés au rôle ACHETEUR, marchand toujours déduit du token (pas d'IDOR)
+  - Renommage de `LigneCommande.quantité` → `quantite` (accent supprimé)
+  - Le flux historique `POST /commandes/newcommande` reste inchangé en parallèle
+  Reste de la Phase 1 non fait : **adresses multiples par utilisateur**
+  (`Utilisateur.adresse` est toujours une relation `@ManyToOne` unique) —
+  changement plus structurant, à faire dans un prochain lot dédié.
+  Prochaine étape : Phase 2 (recherche/filtres, avis, messagerie, tableaux
+  de bord, facturation) ou finir les adresses multiples, selon priorité.
