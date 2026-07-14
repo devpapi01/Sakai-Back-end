@@ -12,13 +12,9 @@ public interface MarchandService {
     List<Marchand>getAll();
     Marchand createMarchand(Register register);
     Marchand updateMarchand(Marchand marchand);
-
     public void sendEmailUser(Marchand marchand, String code);
-
     public Marchand validateToken(String code);
-
     List<Marchand>getByNomContains(String nom);
-
     List<Marchand>getByNomAsc();
     List<Marchand>getByNomDESC();
     List<Marchand>getByPreAcs();
