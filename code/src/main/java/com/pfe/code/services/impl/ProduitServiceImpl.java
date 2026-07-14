@@ -51,7 +51,8 @@ public class ProduitServiceImpl implements ProduitService {
 
     @Override
     public Produit getProd(Long id) {
-        return produitRepository.findById(id).get();
+        return produitRepository.findById(id)
+                .orElseThrow(() -> new GlobalException("Produit introuvable"));
     }
 
     @Override

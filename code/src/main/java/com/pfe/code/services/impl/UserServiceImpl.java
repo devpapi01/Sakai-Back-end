@@ -44,7 +44,7 @@ public class UserServiceImpl implements UserService {
         Optional<Utilisateur>optional = utilisateurRepository.findById(id);
         if (optional.isEmpty())
             throw new GlobalException("Utilisateur non trouvé ");
-        optional.get().setPassword(change);
+        optional.get().setPassword(bCryptPasswordEncoder.encode(change));
 
 
         return utilisateurRepository.save(optional.get());
@@ -63,6 +63,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public Utilisateur updateinfos(Utilisateur utilisateur) {
         Optional<Utilisateur> utilisateur1= utilisateurRepository.findById(utilisateur.getId());
+        if (utilisateur1.isEmpty())
+            throw new GlobalException("Utilisateur non trouvé ");
         utilisateur1.get().setNom(utilisateur.getNom());
         utilisateur1.get().setPrenom(utilisateur.getPrenom());
         utilisateur1.get().setEmail(utilisateur.getEmail());

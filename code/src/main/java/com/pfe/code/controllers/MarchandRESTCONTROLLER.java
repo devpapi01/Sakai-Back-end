@@ -2,6 +2,7 @@ package com.pfe.code.controllers;
 
 import com.pfe.code.entities.Marchand;
 import com.pfe.code.security.SecurityUtils;
+import com.pfe.code.services.Exceptions.GlobalException;
 import com.pfe.code.services.MarchandService;
 import com.pfe.code.services.request.Register;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,7 +64,8 @@ public class MarchandRESTCONTROLLER {
 
     @GetMapping("/find/{email}")
     public Marchand getByMail(@PathVariable("email") String email){
-        return marchandService.findByEmail(email).get();
+        return marchandService.findByEmail(email)
+                .orElseThrow(() -> new GlobalException("Marchand introuvable"));
     }
 
 

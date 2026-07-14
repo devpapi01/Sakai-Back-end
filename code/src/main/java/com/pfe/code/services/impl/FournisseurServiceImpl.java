@@ -64,12 +64,8 @@ public class FournisseurServiceImpl implements FournisseurService {
 
     @Override
     public Fournisseur getByid(Long id)  {
-        Optional<Fournisseur> fournisseur= fournisseurRepository.findById(id);
-        if (fournisseur.isEmpty()) {
-            throw new GlobalException("Fournisseur with ID " + id + " not found");
-        }
-
-        return fournisseurRepository.findById(id).get();
+        return fournisseurRepository.findById(id)
+                .orElseThrow(() -> new GlobalException("Fournisseur with ID " + id + " not found"));
     }
 
     @Override
@@ -146,15 +142,12 @@ return fournisseurRepository.trierOrderByNomASC();
 
     @Override
     public Fournisseur updateFourbyid(Long id, Produit produit) {
-        Optional<Fournisseur> optionalFournisseur= fournisseurRepository.findById(id);
-        if (optionalFournisseur.isPresent()){
-            Fournisseur fournisseur= optionalFournisseur.get();
-            List<Produit> produits= fournisseur.getProduits();
-            produits.add(produit);
-            produit.setFournisseur(fournisseur);
-            return fournisseurRepository.save(fournisseur);
-        }
-        return null;
+        Fournisseur fournisseur = fournisseurRepository.findById(id)
+                .orElseThrow(() -> new GlobalException("Fournisseur with ID " + id + " not found"));
+        List<Produit> produits= fournisseur.getProduits();
+        produits.add(produit);
+        produit.setFournisseur(fournisseur);
+        return fournisseurRepository.save(fournisseur);
     }
 
 

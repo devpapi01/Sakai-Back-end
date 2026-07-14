@@ -4,12 +4,12 @@ import com.pfe.code.entities.Categorie;
 import com.pfe.code.entities.SousCategorie;
 import com.pfe.code.repositories.SousCategorieRepository;
 import com.pfe.code.services.CategorieService;
+import com.pfe.code.services.Exceptions.GlobalException;
 import com.pfe.code.services.SousCategorieService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 
@@ -31,11 +31,12 @@ public class SousCategorieServiceImpl implements SousCategorieService {
 
     @Override
     public SousCategorie updateSousCategorie(SousCategorie sousCategorie) {
-        Optional<SousCategorie>optional=sousCategorieRepository.findById(sousCategorie.getId());
-        optional.get().setNom(sousCategorie.getNom());
-        optional.get().setDescription(sousCategorie.getDescription());
+        SousCategorie existing = sousCategorieRepository.findById(sousCategorie.getId())
+                .orElseThrow(() -> new GlobalException("Sous-categorie introuvable"));
+        existing.setNom(sousCategorie.getNom());
+        existing.setDescription(sousCategorie.getDescription());
 
-        return sousCategorieRepository.save(optional.get());
+        return sousCategorieRepository.save(existing);
     }
 
     @Override
@@ -45,7 +46,8 @@ public class SousCategorieServiceImpl implements SousCategorieService {
 
     @Override
     public SousCategorie getSousCategorie(Long id) {
-        return sousCategorieRepository.findById(id).get();
+        return sousCategorieRepository.findById(id)
+                .orElseThrow(() -> new GlobalException("Sous-categorie introuvable"));
     }
 
     @Override
@@ -70,6 +72,7 @@ sousCategorieRepository.deleteById(id);
 
     @Override
     public SousCategorie getById(Long id) {
-        return sousCategorieRepository.findById(id).get();
+        return sousCategorieRepository.findById(id)
+                .orElseThrow(() -> new GlobalException("Sous-categorie introuvable"));
     }
 }

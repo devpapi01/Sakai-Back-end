@@ -15,8 +15,6 @@ import com.pfe.code.services.request.Register;
 import com.pfe.code.services.request.VerificationToken;
 import com.pfe.code.services.request.VerificationTokenRepository;
 import com.pfe.code.services.utils.EmailSender;
-import org.antlr.v4.runtime.Token;
-import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -66,7 +64,7 @@ public class MarchandServiceImpl implements MarchandService {
         marchand.setTelephone(register.getTelephone());
         marchand.setPassword(bCryptPasswordEncoder.encode(register.getPassword()));
         marchand.setRole(Role.ACHETEUR);
-        marchand.setIsactive(true);
+        marchand.setIsactive(false);
         marchandRepository.save(marchand);
         //envoi de l'envoi de l'email
         String code = this.generateCode();
@@ -74,7 +72,7 @@ public class MarchandServiceImpl implements MarchandService {
         verificationTokenRepository.save(token);
         this.sendEmailUser(marchand,code);
 
-        return marchandRepository.save(marchand);
+        return marchand;
     }
 
     @Override

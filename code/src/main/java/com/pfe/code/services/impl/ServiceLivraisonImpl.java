@@ -12,7 +12,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 import static com.pfe.code.services.tools.EmailMessage.toLivreur;
 import static com.pfe.code.services.tools.EmailMessage.toServiceLivraison;
@@ -47,19 +46,19 @@ public class ServiceLivraisonImpl implements ServiceLivraisonService {
 
     @Override
     public ServiceLivraison UpdateSL(ServiceLivraison serviceLivraison) {
-        Optional<ServiceLivraison>optional= serviceLivraisonRepository.findById(serviceLivraison.getId());
-        if(optional.isEmpty())
-            throw new GlobalException("Le service n'existe pas");
-        optional.get().setNom(serviceLivraison.getNom());
-        optional.get().setPrenom(serviceLivraison.getPrenom());
-        optional.get().setPassword(serviceLivraison.getPassword());
-        optional.get().setAdresse(serviceLivraison.getAdresse());
-        return serviceLivraisonRepository.save(serviceLivraison);
+        ServiceLivraison existing = serviceLivraisonRepository.findById(serviceLivraison.getId())
+                .orElseThrow(() -> new GlobalException("Le service n'existe pas"));
+        existing.setNom(serviceLivraison.getNom());
+        existing.setPrenom(serviceLivraison.getPrenom());
+        existing.setPassword(serviceLivraison.getPassword());
+        existing.setAdresse(serviceLivraison.getAdresse());
+        return serviceLivraisonRepository.save(existing);
     }
 
     @Override
     public ServiceLivraison getById(Long id) {
-        return serviceLivraisonRepository.findById(id).get();
+        return serviceLivraisonRepository.findById(id)
+                .orElseThrow(() -> new GlobalException("Service de livraison introuvable"));
     }
 
     @Override

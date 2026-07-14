@@ -3,11 +3,11 @@ package com.pfe.code.services.impl;
 import com.pfe.code.entities.Categorie;
 import com.pfe.code.repositories.CategorieRepository;
 import com.pfe.code.services.CategorieService;
+import com.pfe.code.services.Exceptions.GlobalException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class CategorieServiceImpl implements CategorieService {
@@ -21,16 +21,18 @@ public class CategorieServiceImpl implements CategorieService {
 
     @Override
     public Categorie updateCategorie(Categorie categorie) {
-        Optional<Categorie>optional= categorieRepository.findById(categorie.getId());
-        optional.get().setNom(categorie.getNom());
-        optional.get().setDescription(categorie.getDescription());
+        Categorie existing = categorieRepository.findById(categorie.getId())
+                .orElseThrow(() -> new GlobalException("Categorie introuvable"));
+        existing.setNom(categorie.getNom());
+        existing.setDescription(categorie.getDescription());
 
-        return categorieRepository.save(optional.get());
+        return categorieRepository.save(existing);
     }
 
     @Override
     public Categorie getCategorie(Long id) {
-        return categorieRepository.findById(id).get();
+        return categorieRepository.findById(id)
+                .orElseThrow(() -> new GlobalException("Categorie introuvable"));
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.pfe.code.entities.Image;
 import com.pfe.code.entities.Produit;
 import com.pfe.code.repositories.ImageRepository;
 import com.pfe.code.repositories.ProduitRepository;
+import com.pfe.code.services.Exceptions.GlobalException;
 import com.pfe.code.services.ImageService;
 import com.pfe.code.services.ProduitService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ImageServiceImpl implements ImageService {
@@ -27,8 +27,8 @@ public class ImageServiceImpl implements ImageService {
     ProduitRepository produitRepository;
     @Override
     public Image uplaodImageProd(MultipartFile file,Long idProd) throws IOException {
-        Produit p = new Produit();
-        p.setIdProd(idProd);
+        Produit p = produitRepository.findById(idProd)
+                .orElseThrow(() -> new GlobalException("Produit introuvable"));
         return imageRepository.save(Image.builder()
                 .name(file.getOriginalFilename())
                 .type(file.getContentType())
@@ -38,26 +38,29 @@ public class ImageServiceImpl implements ImageService {
 
     @Override
     public List<Image> getImagesParProd(Long prodId) {
-        Produit p = produitRepository.findById(prodId).get();
+        Produit p = produitRepository.findById(prodId)
+                .orElseThrow(() -> new GlobalException("Produit introuvable"));
         return p.getImages();     }
 
 
     @Override
     public Image getImageDetails(Long id) throws IOException {
-        final Optional<Image> dbImage = imageRepository.findById(id);
-        return Image.builder().id(dbImage.get().getId())
-                .name(dbImage.get().getName())
-                .type(dbImage.get().getType())
-                .image(dbImage.get().getImage()).build() ;
+        Image dbImage = imageRepository.findById(id)
+                .orElseThrow(() -> new GlobalException("Image introuvable"));
+        return Image.builder().id(dbImage.getId())
+                .name(dbImage.getName())
+                .type(dbImage.getType())
+                .image(dbImage.getImage()).build() ;
     }
 
     @Override
     public ResponseEntity<byte[]> getImage(Long id) throws IOException {
-        final Optional<Image> dbImage = imageRepository. findById (id);
+        Image dbImage = imageRepository.findById(id)
+                .orElseThrow(() -> new GlobalException("Image introuvable"));
         return ResponseEntity
                 .ok()
-                .contentType(MediaType.valueOf(dbImage.get().getType()))
-                .body(dbImage.get().getImage());
+                .contentType(MediaType.valueOf(dbImage.getType()))
+                .body(dbImage.getImage());
 
     }
 

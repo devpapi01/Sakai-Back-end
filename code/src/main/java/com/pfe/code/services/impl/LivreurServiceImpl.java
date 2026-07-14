@@ -10,7 +10,6 @@ import com.pfe.code.services.Exceptions.GlobalException;
 import com.pfe.code.services.LivreurService;
 import com.pfe.code.services.utils.EmailSender;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +31,8 @@ public class LivreurServiceImpl implements LivreurService {
     BCryptPasswordEncoder bCryptPasswordEncoder;
     @Override
     public Livreur createLivreur(Long id, Livreur livreur) {
-        ServiceLivraison serviceLivraison=serviceLivraisonRepository.findById(id).get();
+        ServiceLivraison serviceLivraison = serviceLivraisonRepository.findById(id)
+                .orElseThrow(() -> new GlobalException("Service de livraison introuvable"));
         livreur.setMatricule(livreur.getNom()+serviceLivraison.getNom()+livreur.getAdresse().getPays());
         livreur.setServiceLivraison(serviceLivraison);
         livreur.setPassword(bCryptPasswordEncoder.encode(livreur.getPassword()));
@@ -54,7 +54,8 @@ public class LivreurServiceImpl implements LivreurService {
 
     @Override
     public Livreur getByid(Long id) {
-        return livreurRepository.findById(id).get();
+        return livreurRepository.findById(id)
+                .orElseThrow(() -> new GlobalException("Livreur introuvable"));
     }
 
     @Override

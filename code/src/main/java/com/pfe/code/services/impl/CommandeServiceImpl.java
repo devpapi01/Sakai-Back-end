@@ -3,6 +3,7 @@ package com.pfe.code.services.impl;
 import com.pfe.code.entities.*;
 import com.pfe.code.repositories.*;
 import com.pfe.code.services.CommandeService;
+import com.pfe.code.services.Exceptions.GlobalException;
 import com.pfe.code.services.MarchandService;
 import com.pfe.code.services.utils.EmailSender;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +41,7 @@ public class CommandeServiceImpl implements CommandeService {
     public String generateCommandeReference(String nomMarchand, String nomSL,String date) {
 
         String m = nomMarchand.substring(0, Math.min(nomMarchand.length(), 2));
-        String sl= nomSL.substring(0,Math.min(nomMarchand.length(), 2));
+        String sl= nomSL.substring(0,Math.min(nomSL.length(), 2));
 
         String ref= m+sl+date;
 
@@ -108,8 +109,10 @@ public class CommandeServiceImpl implements CommandeService {
 
     @Override
     public Commande setLivreurCommande(Long idCom, Long idLivreur) {
-        Livreur livreur= livreurRepository.findById(idLivreur).get();
-        Commande commande=commandeRepository.findById(idCom).get();
+        Livreur livreur = livreurRepository.findById(idLivreur)
+                .orElseThrow(() -> new GlobalException("Livreur introuvable"));
+        Commande commande = commandeRepository.findById(idCom)
+                .orElseThrow(() -> new GlobalException("Commande introuvable"));
         //email au livreur
         commande.setLivreur(livreur);
         return commandeRepository.save(commande);
@@ -119,7 +122,8 @@ public class CommandeServiceImpl implements CommandeService {
     public Commande updateEtat(Long idCom, String etat) {
 
         //email si marchand pour l'état de sa commande
-        Commande commande= commandeRepository.findById(idCom).get();
+        Commande commande = commandeRepository.findById(idCom)
+                .orElseThrow(() -> new GlobalException("Commande introuvable"));
         Etat etat1=Etat.fromJsonString(etat);
 
        commande.setEtat(etat1);
