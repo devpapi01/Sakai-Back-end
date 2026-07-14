@@ -2,6 +2,7 @@ package com.pfe.code.security;
 
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpMethod;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -45,13 +46,25 @@ public class SecurityConfig {
             "/register",
             "/marchands/register",
             "/marchands/verifyEmail/**",
-            "/categories/**",
             "/fournisseurs/**",
-            "/souscategories/**",
             "/api-docs/**",
             "/v3/api-docs/**",
             "/swagger-ui/**",
             "/swagger-ui.html"
+    };
+
+    // Lecture publique du catalogue (categories/sous-categories) : ecriture reservee a ADMIN, voir ADMIN[]
+    private static final String[] CATALOG_READ_WHITELIST = {
+            "/categories/allcats",
+            "/categories/allnoms",
+            "/categories/getByid/**",
+            "/categories/nomc/**",
+            "/souscategories/allsc",
+            "/souscategories/getssc/**",
+            "/souscategories/getbycatid/**",
+            "/souscategories/allnomss",
+            "/souscategories/ssnomc/**",
+            "/souscategories/getbyid/**"
     };
 
     private static final String[] ADMIN = {
@@ -64,7 +77,13 @@ public class SecurityConfig {
             "/marchands/nomDESc",
             "/marchands/preASC",
             "/marchands/preDESC",
-            "/marchands/find/**"
+            "/marchands/find/**",
+            "/categories/addcat",
+            "/categories/updatecat",
+            "/categories/deletecat/**",
+            "/souscategories/addsscat/**",
+            "/souscategories/updatecat",
+            "/souscategories/deletessc/**"
     };
 
     private static final String[] SERVICE = {
@@ -129,6 +148,7 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(AUTH_WHITELIST).permitAll()
+                        .requestMatchers(HttpMethod.GET, CATALOG_READ_WHITELIST).permitAll()
                         .requestMatchers(COMMUN).authenticated()
                         .requestMatchers(ADMIN).hasAuthority("ADMIN")
                         .requestMatchers(SERVICE).hasAuthority("SERVICE_LIVRAISON")
