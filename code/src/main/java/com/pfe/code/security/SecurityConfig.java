@@ -41,7 +41,7 @@ public class SecurityConfig {
     private static final String[] AUTH_WHITELIST = {
             "/",
             "/error",
-            "/baba/login",
+            "/login",
             "/register",
             "/marchands/register",
             "/marchands/verifyEmail/**",
