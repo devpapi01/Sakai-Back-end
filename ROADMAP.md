@@ -76,3 +76,17 @@ On avance phase par phase, un point à la fois, avec commit + push après chaque
 ## Historique
 
 - 2026-07-14 : création de la roadmap après l'audit initial du projet.
+- 2026-07-14 : Phase 0 (stabilisation) terminée et poussée sur `origin/master` :
+  secret JWT externalisé (`.env` + spring-dotenv), mapping `/login` corrigé,
+  IDOR corrigés sur les endpoints self-service et sur `/commandes`, écriture
+  du catalogue restreinte à ADMIN, mot de passe masqué en sortie JSON, CORS
+  unifié, annotations `@PreAuthorize` mortes supprimées, endpoints sans règle
+  de rôle explicite restreints, bugs de code corrigés (`Optional.get()` non
+  gardés, bug de troncature `generateCommandeReference`, double `save()`,
+  imports morts). Limites connues restantes : `/commandes/getbyref/{ref}`
+  reste accessible à tout utilisateur authentifié sans vérification de
+  propriété (référence potentiellement devinable) ; `/fournisseurs/**` reste
+  entièrement whitelisté au niveau `SecurityConfig` mais les écritures sont
+  protégées par un contrôle de propriété au niveau contrôleur. À reprendre
+  en Phase 1 si besoin de durcissement supplémentaire.
+  Prochaine étape : Phase 1 (fondations manquantes de la marketplace).
