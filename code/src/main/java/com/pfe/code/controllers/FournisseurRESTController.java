@@ -7,7 +7,6 @@ import com.pfe.code.services.FournisseurService;
 import com.pfe.code.services.ProduitService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

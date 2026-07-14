@@ -4,15 +4,12 @@ import com.pfe.code.entities.Produit;
 import com.pfe.code.services.ProduitService;
 import com.pfe.code.services.request.ProduitFilterRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PostAuthorize;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 
 @RestController
-@PreAuthorize("permitAll()")
 @RequestMapping("/produits")
 public class ProduitRESTController {
     @Autowired

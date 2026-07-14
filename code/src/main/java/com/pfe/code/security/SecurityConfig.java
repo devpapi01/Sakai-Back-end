@@ -64,7 +64,21 @@ public class SecurityConfig {
             "/souscategories/getbycatid/**",
             "/souscategories/allnomss",
             "/souscategories/ssnomc/**",
-            "/souscategories/getbyid/**"
+            "/souscategories/getbyid/**",
+            "/produits/allprods",
+            "/produits/filtre",
+            "/produits/search",
+            "/produits/getncont/**",
+            "/produits/prodcat/**",
+            "/produits/detailprod/**",
+            "/produits/prodcatnom/**",
+            "/produits/fournisseur/**",
+            "/produits/prodcatacs",
+            "/produits/prix/**",
+            "/produits/prixasc",
+            "/produits/prixdes",
+            "/produits/nomasc",
+            "/produits/nomdesc"
     };
 
     private static final String[] ADMIN = {
