@@ -106,8 +106,14 @@ On avance phase par phase, un point à la fois, avec commit + push après chaque
     réservés au rôle ACHETEUR, marchand toujours déduit du token (pas d'IDOR)
   - Renommage de `LigneCommande.quantité` → `quantite` (accent supprimé)
   - Le flux historique `POST /commandes/newcommande` reste inchangé en parallèle
-  Reste de la Phase 1 non fait : **adresses multiples par utilisateur**
-  (`Utilisateur.adresse` est toujours une relation `@ManyToOne` unique) —
-  changement plus structurant, à faire dans un prochain lot dédié.
-  Prochaine étape : Phase 2 (recherche/filtres, avis, messagerie, tableaux
-  de bord, facturation) ou finir les adresses multiples, selon priorité.
+- 2026-07-14 : **Phase 1 entièrement terminée** — ajout du carnet d'adresses
+  de livraison multiples pour les marchands : nouvelle entité
+  `AdresseLivraison` (libellé/pays/ville/emplacement/parDefaut) liée à
+  `Marchand`, volontairement **distincte** de `Utilisateur.adresse` (l'adresse
+  de profil existante n'a pas été touchée, pour ne pas risquer de casser
+  l'inscription/mise à jour de profil déjà en place). CRUD complet sous
+  `/marchands/adresses` (rôle ACHETEUR, marchand déduit du token). La
+  validation du panier (`POST /commandes/panier/valider`) accepte maintenant
+  soit `adresseLivraisonId` (une adresse enregistrée), soit un texte libre.
+  Prochaine étape : Phase 2 (recherche/filtres avancés, avis/notation,
+  messagerie marchand-fournisseur, tableaux de bord par rôle, facturation).
