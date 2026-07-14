@@ -9,12 +9,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@CrossOrigin(origins = "*")
 @RequestMapping("/souscategories")
-public class SousCategorieRESTController {
+public class SousCategorieRESTController{
     @Autowired
     SousCategorieService sousCategorieService;
-
 
     @GetMapping("/allsc")
     public List<SousCategorie> getAll(){
@@ -25,11 +23,11 @@ public class SousCategorieRESTController {
     public SousCategorie getSousCat(@PathVariable("id")Long id){
         return sousCategorieService.getSousCategorie(id);
     }
+
     @GetMapping("/getbycatid/{id}")
     public List<SousCategorie>getByCat(@PathVariable("id")Long id){
         return sousCategorieService.getByCategorieId(id);
     }
-
 
     @GetMapping("/allnomss")
     public List<String>getAllNoms(){
@@ -41,7 +39,6 @@ public class SousCategorieRESTController {
         return sousCategorieService.getByNomC(nom);
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/addsscat/{id}")
     public SousCategorie addSsC(@PathVariable("id") Long id,@RequestBody SousCategorie sousCategorie){
         return sousCategorieService.saveSousCategorie(id,sousCategorie);
@@ -51,13 +48,11 @@ public class SousCategorieRESTController {
         return sousCategorieService.getById(id);
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping("/updatecat")
     public SousCategorie updatessc(@RequestBody SousCategorie sousCategorie){
         return sousCategorieService.updateSousCategorie(sousCategorie);
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
     @DeleteMapping("/deletessc/{id}")
     public void delete(@PathVariable("id") Long id){
         sousCategorieService.deleteSousCategorie(id);

@@ -12,7 +12,6 @@ import java.util.List;
 
 
 @RestController
-@CrossOrigin(origins = "*")
 @PreAuthorize("permitAll()")
 @RequestMapping("/produits")
 public class ProduitRESTController {

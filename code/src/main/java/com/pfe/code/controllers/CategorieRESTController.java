@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@CrossOrigin(origins = "*")
 @RequestMapping("/categories")
 public class CategorieRESTController {
     @Autowired
@@ -34,19 +33,16 @@ public class CategorieRESTController {
     public List<Categorie>getnomc(@PathVariable("nom")String nom){
         return categorieService.getByNomC(nom);
     }
-    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/addcat")
     public Categorie savecat(@RequestBody Categorie categorie){
         return categorieService.saveCategorie(categorie);
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping("/updatecat")
    public Categorie updatecat(@RequestBody Categorie categorie){
         return categorieService.updateCategorie(categorie);
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
     @DeleteMapping("/deletecat/{id}")
     public void deletecatByid(@PathVariable("id")Long id){
         categorieService.deleteCategorie(id);
