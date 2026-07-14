@@ -7,6 +7,7 @@ import java.util.List;
 //principe SRP
 public interface CommandeService {
     List<Commande> findAll();
+    Commande findById(Long id);
     List<Commande>findByMarchandId(Long id);
     List<Commande>findBySLId(Long id);
     Commande findByref(String ref);

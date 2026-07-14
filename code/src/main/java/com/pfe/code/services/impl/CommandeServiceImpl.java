@@ -53,6 +53,11 @@ public class CommandeServiceImpl implements CommandeService {
     }
 
     @Override
+    public Commande findById(Long id) {
+        return commandeRepository.findById(id).orElse(null);
+    }
+
+    @Override
     public List<Commande> findByMarchandId(Long id) {
         return commandeRepository.findByMarchandId(id);
     }

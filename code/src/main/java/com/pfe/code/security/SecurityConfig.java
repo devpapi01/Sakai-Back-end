@@ -97,24 +97,31 @@ public class SecurityConfig {
             "/categories/deletecat/**",
             "/souscategories/addsscat/**",
             "/souscategories/updatecat",
-            "/souscategories/deletessc/**"
+            "/souscategories/deletessc/**",
+            "/serviceslivraison/addSl",
+            "/commandes/all"
     };
 
     private static final String[] SERVICE = {
             "/serviceslivraison/getSl/**",
             "/serviceslivraison/deleteSL/**",
             "/serviceslivraison/updateSl",
-            "/livreurs/addlivreur/**"
+            "/livreurs/addlivreur/**",
+            "/commandes/setlivreur/**",
+            "/commandes/getbySL/**"
     };
 
     private static final String[] COMMUN = {
             "/users/changepassword/**",
             "/users/updateinfosuser",
-            "/users/email/**"
+            "/users/email/**",
+            "/commandes/getbyM/**",
+            "/commandes/getbyref/**"
     };
 
     private static final String[] LIVREUR = {
-            "/livreurs/deletelivreur/**"
+            "/livreurs/deletelivreur/**",
+            "/commandes/getbylivreur/**"
     };
 
     private static final String[] FOURNISSEUR = {
@@ -125,12 +132,15 @@ public class SecurityConfig {
 
     private static final String[] ACHETEUR = {
             "/marchands/updateinfos",
-            "/marchands/delete/**"
+            "/marchands/delete/**",
+            "/commandes/newcommande",
+            "/commandes/deletecom/**"
     };
 
     private static final String[] SERVICE_OR_LIVREUR = {
             "/livreurs/updateL",
-            "/livreurs/getforsl/**"
+            "/livreurs/getforsl/**",
+            "/commandes/etatcom/**"
     };
 
     @Bean
