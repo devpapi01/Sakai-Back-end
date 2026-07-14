@@ -4,12 +4,17 @@ import com.pfe.code.entities.Commande;
 import com.pfe.code.entities.Etat;
 import com.pfe.code.entities.Livreur;
 import com.pfe.code.entities.Marchand;
+import com.pfe.code.entities.PaymentStatus;
 import com.pfe.code.entities.ServiceLivraison;
 import com.pfe.code.entities.Utilisateur;
 import com.pfe.code.security.SecurityUtils;
 import com.pfe.code.services.CommandeService;
 import com.pfe.code.services.MarchandService;
 import com.pfe.code.services.UserService;
+import com.pfe.code.services.request.AjouterLigneRequest;
+import com.pfe.code.services.request.ModifierLigneRequest;
+import com.pfe.code.services.request.ValiderPanierRequest;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
@@ -54,6 +59,11 @@ public class CommandeRESTController {
         if (!(current instanceof Livreur) || livreurId == null || !current.getId().equals(livreurId)) {
             throw new AccessDeniedException("Vous n'avez pas acces a ces commandes");
         }
+    }
+
+    private Marchand currentMarchandOrDeny() {
+        return marchandService.findByEmail(SecurityUtils.currentEmail())
+                .orElseThrow(() -> new AccessDeniedException("Seul un marchand authentifie peut gerer un panier"));
     }
 
     private void checkCanManageCommande(Commande commande) {
@@ -128,5 +138,42 @@ public class CommandeRESTController {
         commandeService.deleteCommandeById(id);
     }
 
+    @GetMapping("/panier")
+    public Commande getPanier(){
+        Marchand current = currentMarchandOrDeny();
+        return commandeService.getPanier(current.getId());
+    }
+
+    @PostMapping("/panier/ajouter")
+    public Commande ajouterAuPanier(@Valid @RequestBody AjouterLigneRequest request){
+        Marchand current = currentMarchandOrDeny();
+        return commandeService.ajouterAuPanier(current.getId(), request.getProduitId(), request.getQuantite());
+    }
+
+    @PutMapping("/panier/lignes/{ligneId}")
+    public Commande modifierLignePanier(@PathVariable("ligneId") Long ligneId, @Valid @RequestBody ModifierLigneRequest request){
+        Marchand current = currentMarchandOrDeny();
+        return commandeService.modifierLignePanier(current.getId(), ligneId, request.getQuantite());
+    }
+
+    @DeleteMapping("/panier/lignes/{ligneId}")
+    public Commande supprimerLignePanier(@PathVariable("ligneId") Long ligneId){
+        Marchand current = currentMarchandOrDeny();
+        return commandeService.supprimerLignePanier(current.getId(), ligneId);
+    }
+
+    @PostMapping("/panier/valider")
+    public List<Commande> validerPanier(@Valid @RequestBody ValiderPanierRequest request){
+        Marchand current = currentMarchandOrDeny();
+        return commandeService.validerPanier(current.getId(), request.getAdresseLivraison(),
+                request.getEmailRec(), request.getNumRec());
+    }
+
+    @PutMapping("/{id}/payer")
+    public Commande payer(@PathVariable("id") Long id){
+        Commande commande = commandeService.findById(id);
+        checkIsOwnerMarchand(commande != null ? commande.getMarchand().getId() : null);
+        return commandeService.marquerPaiement(id, PaymentStatus.PAYEE);
+    }
 
 }

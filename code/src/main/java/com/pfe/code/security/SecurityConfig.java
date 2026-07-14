@@ -134,7 +134,9 @@ public class SecurityConfig {
             "/marchands/updateinfos",
             "/marchands/delete/**",
             "/commandes/newcommande",
-            "/commandes/deletecom/**"
+            "/commandes/deletecom/**",
+            "/commandes/panier/**",
+            "/commandes/*/payer"
     };
 
     private static final String[] SERVICE_OR_LIVREUR = {
