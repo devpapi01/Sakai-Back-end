@@ -9,7 +9,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ValiderPanierRequest {
-    @NotBlank(message = "L'adresse de livraison est obligatoire")
+    // Une adresse enregistree (adresseLivraisonId) ou un texte libre
+    // (adresseLivraison) doit etre fourni ; verifie par CommandeServiceImpl.
+    private Long adresseLivraisonId;
+
     private String adresseLivraison;
 
     @NotBlank(message = "L'email du destinataire est obligatoire")

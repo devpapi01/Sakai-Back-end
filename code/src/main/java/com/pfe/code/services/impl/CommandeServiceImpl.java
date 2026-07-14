@@ -41,6 +41,9 @@ public class CommandeServiceImpl implements CommandeService {
     LivreurRepository livreurRepository;
 
     @Autowired
+    AdresseLivraisonRepository adresseLivraisonRepository;
+
+    @Autowired
     EmailSender emailSender;
 
 
@@ -230,8 +233,24 @@ public class CommandeServiceImpl implements CommandeService {
         return commandeRepository.save(panier);
     }
 
+    private String resoudreAdresseLivraison(Long marchandId, Long adresseLivraisonId, String adresseLivraisonTexte) {
+        if (adresseLivraisonId != null) {
+            AdresseLivraison adresse = adresseLivraisonRepository.findById(adresseLivraisonId)
+                    .orElseThrow(() -> new GlobalException("Adresse de livraison introuvable"));
+            if (adresse.getMarchand() == null || !adresse.getMarchand().getId().equals(marchandId)) {
+                throw new GlobalException("Adresse de livraison introuvable");
+            }
+            return adresse.getLibelle() + " - " + adresse.getEmplacement() + ", " + adresse.getVille() + ", " + adresse.getPays();
+        }
+        if (adresseLivraisonTexte != null && !adresseLivraisonTexte.isBlank()) {
+            return adresseLivraisonTexte;
+        }
+        throw new GlobalException("Une adresse de livraison est requise (adresseLivraisonId ou adresseLivraison)");
+    }
+
     @Override
-    public List<Commande> validerPanier(Long marchandId, String adresseLivraison, String emailRec, String numRec) {
+    public List<Commande> validerPanier(Long marchandId, Long adresseLivraisonId, String adresseLivraisonTexte, String emailRec, String numRec) {
+        String adresseLivraison = resoudreAdresseLivraison(marchandId, adresseLivraisonId, adresseLivraisonTexte);
         Commande panier = getPanierExistant(marchandId);
         if (panier.getLignesCommande() == null || panier.getLignesCommande().isEmpty()) {
             throw new GlobalException("Le panier est vide");

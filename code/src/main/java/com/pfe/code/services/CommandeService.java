@@ -24,7 +24,7 @@ public interface CommandeService {
     Commande ajouterAuPanier(Long marchandId, Long produitId, Long quantite);
     Commande modifierLignePanier(Long marchandId, Long ligneId, Long quantite);
     Commande supprimerLignePanier(Long marchandId, Long ligneId);
-    List<Commande> validerPanier(Long marchandId, String adresseLivraison, String emailRec, String numRec);
+    List<Commande> validerPanier(Long marchandId, Long adresseLivraisonId, String adresseLivraisonTexte, String emailRec, String numRec);
     Commande marquerPaiement(Long idCom, PaymentStatus status);
 
 }

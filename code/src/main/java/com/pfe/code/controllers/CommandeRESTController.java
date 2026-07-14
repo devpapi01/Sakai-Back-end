@@ -165,8 +165,8 @@ public class CommandeRESTController {
     @PostMapping("/panier/valider")
     public List<Commande> validerPanier(@Valid @RequestBody ValiderPanierRequest request){
         Marchand current = currentMarchandOrDeny();
-        return commandeService.validerPanier(current.getId(), request.getAdresseLivraison(),
-                request.getEmailRec(), request.getNumRec());
+        return commandeService.validerPanier(current.getId(), request.getAdresseLivraisonId(),
+                request.getAdresseLivraison(), request.getEmailRec(), request.getNumRec());
     }
 
     @PutMapping("/{id}/payer")
